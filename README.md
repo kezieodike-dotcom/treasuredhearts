@@ -171,6 +171,7 @@ RESEND_API_KEY="re_your_api_key_here"
 RESEND_FROM_EMAIL="invitations@michealspeace.com"
 ```
 3. Whenever a guest submits or updates their RSVP, a branded confirmation email (White, Gold, and Black theme) is delivered to their email address. If email delivery is unavailable or fails, the RSVP is preserved safely in the database and the error is reported without disrupting the guest.
+4. New wedding wishes are also forwarded to the couple's inbox while remaining pending moderation. Set `WISHES_NOTIFICATION_EMAIL` if the notification recipient changes.
 
 ---
 
