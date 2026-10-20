@@ -37,7 +37,10 @@ export async function createApp(options={}) {
   }
   const admin=wrap(async(req,res)=>{req.admin=await authorized(req,res);});
   app.use('/api',(req,res,next)=>{res.set({'Cache-Control':'no-store','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'});if(['POST','PATCH','PUT','DELETE'].includes(req.method)){
-    const allowed=[options.siteUrl||env.PUBLIC_SITE_URL||(!production?'http://'+req.headers.host:''),env.VERCEL_URL?'https://'+env.VERCEL_URL:''].filter(Boolean).map(v=>new URL(v).origin);
+    const forwardedHost=String(req.headers['x-forwarded-host']||'').split(',')[0].trim();
+    const requestHost=forwardedHost||String(req.headers.host||'').trim();
+    const hostOrigin=requestHost?(production?'https://':'http://')+requestHost:'';
+    const allowed=[options.siteUrl||env.PUBLIC_SITE_URL||(!production?'http://'+req.headers.host:''),env.VERCEL_URL?'https://'+env.VERCEL_URL:'',hostOrigin].filter(Boolean).map(v=>new URL(v).origin);
     if(!req.headers.origin||!allowed.includes(req.headers.origin))return res.status(403).json({error:'Request origin is not allowed.'});
     if(!req.is('application/json'))return res.status(415).json({error:'Send JSON content.'});
   }next();});
