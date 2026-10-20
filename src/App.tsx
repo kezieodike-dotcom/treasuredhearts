@@ -14,9 +14,11 @@ import {Giving} from './pages/Giving';
 import {Wishes} from './pages/Wishes';
 import {AdminLayout} from './admin/AdminLayout';
 import {updatePageSEO} from './lib/seo';
-const initial:WeddingData={config:INITIAL_WEDDING_CONFIG,gallery:[],stories:[],wishes:[]};
+import {STORY_CHAPTERS} from './data/story';
+import {CHILDHOOD_GALLERY} from './data/gallery';
+const initial:WeddingData={config:INITIAL_WEDDING_CONFIG,gallery:CHILDHOOD_GALLERY,stories:STORY_CHAPTERS,wishes:[]};
 export default function App(){
-  const [path,setPath]=useState(window.location.pathname);const [data,setData]=useState<WeddingData>(initial);const [loading,setLoading]=useState(true);const [error,setError]=useState('');const [lightbox,setLightbox]=useState<number|null>(null);const main=useRef<HTMLElement>(null);
+  const [path,setPath]=useState(window.location.pathname);const [data,setData]=useState<WeddingData>(initial);const [loading,setLoading]=useState(false);const [error,setError]=useState('');const [lightbox,setLightbox]=useState<number|null>(null);const main=useRef<HTMLElement>(null);
   const reload=useCallback(async()=>{try{const next=await publicData();setData(next);setError('');}catch(e){setError((e as Error).message);}finally{setLoading(false);}},[]);
   useEffect(()=>{void reload();},[reload]);
   useEffect(()=>{const pop=()=>{setPath(window.location.pathname);setLightbox(null);};window.addEventListener('popstate',pop);return()=>window.removeEventListener('popstate',pop);},[]);
