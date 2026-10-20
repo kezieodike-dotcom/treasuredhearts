@@ -11,4 +11,14 @@ export async function sendEmail({to,subject,message,key,env=process.env}){
 }
 export async function notifyRsvp(result,config,env){return sendEmail({to:result.guest.email,subject:result.updated?'Your RSVP has been updated':'Your RSVP confirmation',message:'Hello '+result.guest.fullName+',\n\nWe have saved your response: '+(result.rsvp.attendanceStatus==='attending'?'Attending, '+result.rsvp.attendeeCount+' attendee(s).':'Unable to attend.')+'\n\n'+config.eventDate+' · '+config.ceremonyStartTime+'\n'+config.venueName+'\n'+config.venueAddress+'\n\nFor RSVP enquiries: '+config.contactNumbers.join(', '),key:'rsvp/'+result.rsvp.id+'/'+result.rsvp.updatedAt,env});}
 const WISHES_RECIPIENT='michael.chukuwu.241426@unn.edu.ng';
-export async function notifyWish(wish,env){return sendEmail({to:env.WISHES_NOTIFICATION_EMAIL||WISHES_RECIPIENT,subject:'New wedding wish from '+wish.displayName,message:'A new message has been submitted to the Peace & Michael wedding guestbook.\n\nFrom: '+wish.displayName+'\n\n'+wish.message+'\n\nThis wish is pending approval in the wedding team dashboard.',key:'wish/'+wish.id+'/'+wish.createdAt,env});}
+async function sendWishWithWeb3Forms(wish,env){
+  if(!env.WEB3FORMS_ACCESS_KEY)return null;
+  const subject='New wedding wish from '+wish.displayName;
+  try {
+    const response=await fetch('https://api.web3forms.com/submit',{method:'POST',signal:AbortSignal.timeout(8000),headers:{'Content-Type':'application/json'},body:JSON.stringify({access_key:env.WEB3FORMS_ACCESS_KEY,subject,from_name:'Michael’sPeace wedding website',name:wish.displayName,message:wish.message,moderation_status:'Pending approval',botcheck:''})});
+    const data=await response.json();
+    if(!response.ok||data.success!==true)return {status:'failed',message:'Your wish is saved, but the email notification could not be sent.'};
+    return {status:'accepted',message:'Your wish is saved and the email provider accepted the notification.'};
+  } catch{return {status:'failed',message:'Your wish is saved, but the email notification could not be sent.'};}
+}
+export async function notifyWish(wish,env){const web3=await sendWishWithWeb3Forms(wish,env);if(web3)return web3;return sendEmail({to:env.WISHES_NOTIFICATION_EMAIL||WISHES_RECIPIENT,subject:'New wedding wish from '+wish.displayName,message:'A new message has been submitted to the Peace & Michael wedding guestbook.\n\nFrom: '+wish.displayName+'\n\n'+wish.message+'\n\nThis wish is pending approval in the wedding team dashboard.',key:'wish/'+wish.id+'/'+wish.createdAt,env});}
