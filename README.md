@@ -173,6 +173,7 @@ RESEND_FROM_EMAIL="invitations@michealspeace.com"
 3. Whenever a guest submits or updates their RSVP, a branded confirmation email (White, Gold, and Black theme) is delivered to their email address. If email delivery is unavailable or fails, the RSVP is preserved safely in the database and the error is reported without disrupting the guest.
 4. New wedding wishes are also forwarded to the couple's inbox while remaining pending moderation. Set `WISHES_NOTIFICATION_EMAIL` if the notification recipient changes.
 5. To use Web3Forms for wish notifications, add `WEB3FORMS_ACCESS_KEY` to the server environment. It takes priority over Resend for wishes; the wish is still saved and moderated by this site first.
+6. Supabase is optional for a Vercel-only launch: if no Supabase variables are configured, wishes are sent directly through Web3Forms and are not stored in the site guestbook. Add Supabase later if you want persistent moderation and public wish history.
 
 ---
 
